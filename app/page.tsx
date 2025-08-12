@@ -99,10 +99,7 @@ export default function Page() {
           aValue = a.price;
           bValue = b.price;
           break;
-        case 'createdAt':
-          aValue = new Date(a.createdAt).getTime();
-          bValue = new Date(b.createdAt).getTime();
-          break;
+
         case 'uniqueHolders':
           aValue = a.uniqueHolders;
           bValue = b.uniqueHolders;
