@@ -8,6 +8,12 @@ export async function fetchCreatorCoin(identifier: Identifier) {
   const res = await getProfile({ identifier });
   const profile: any = res?.data?.profile;
   const creatorCoin = profile?.creatorCoin || null;
+  
+  // Jos creator coin löytyy, lisätään uniqueHolders tieto
+  if (creatorCoin) {
+    creatorCoin.uniqueHolders = creatorCoin.uniqueHolders || 0;
+  }
+  
   return { profile, creatorCoin };
 }
 

@@ -1,4 +1,4 @@
-import { setApiKey, getMostValuableCreatorCoins, getProfile } from "@zoralabs/coins-sdk";
+import { setApiKey, getMostValuableCreatorCoins, getCreatorCoins, getProfile } from "@zoralabs/coins-sdk";
 
 if (process.env.ZORA_API_KEY) setApiKey(process.env.ZORA_API_KEY);
 
@@ -8,10 +8,12 @@ export type CreatorCoin = {
   symbol: string;
   marketCap: number;
   volume24h: number;
+  totalVolume: number;
   createdAt: string;
   creatorHandle: string;
   price: number;
   marketCapDelta24h: number;
+  uniqueHolders: number;
   profileImage?: string;
   displayName?: string;
 };
@@ -19,7 +21,7 @@ export type CreatorCoin = {
 export async function fetchTopCreators(): Promise<CreatorCoin[]> {
   try {
     // Hae kaikki creator coinit markkina-arvon mukaan
-    const result = await getMostValuableCreatorCoins({ count: 100 });
+    const result = await getMostValuableCreatorCoins({ count: 200 });
     
     const edges = result?.data?.exploreList?.edges || [];
     
@@ -44,16 +46,18 @@ export async function fetchTopCreators(): Promise<CreatorCoin[]> {
           symbol: coin.symbol,
           marketCap: parseFloat(coin.marketCap),
           volume24h: parseFloat(coin.volume24h || "0"),
+          totalVolume: parseFloat(coin.totalVolume || "0"),
           createdAt: coin.createdAt,
           creatorHandle: coin.creatorProfile?.handle || coin.creatorAddress,
           price: parseFloat(coin.tokenPrice?.priceInUsdc || "0"),
           marketCapDelta24h: parseFloat(coin.marketCapDelta24h || "0"),
+          uniqueHolders: coin.uniqueHolders || 0,
           profileImage: coin.creatorProfile?.avatar?.previewImage?.medium,
           displayName: coin.creatorProfile?.displayName
         };
       })
       .filter((coin) => coin !== null)
-      .slice(0, 100) as CreatorCoin[]; // Top 100
+      .slice(0, 200) as CreatorCoin[]; // Top 200
     
     console.log(`Found ${creatorCoins.length} valid creator coins out of ${edges.length} total items`);
     return creatorCoins;
@@ -66,7 +70,7 @@ export async function fetchTopCreators(): Promise<CreatorCoin[]> {
 export async function fetchTopGainers(): Promise<CreatorCoin[]> {
   try {
     // Hae kaikki creator coinit
-    const result = await getMostValuableCreatorCoins({ count: 100 });
+    const result = await getMostValuableCreatorCoins({ count: 200 });
     
     const edges = result?.data?.exploreList?.edges || [];
     
@@ -90,10 +94,12 @@ export async function fetchTopGainers(): Promise<CreatorCoin[]> {
           symbol: coin.symbol,
           marketCap: parseFloat(coin.marketCap),
           volume24h: parseFloat(coin.volume24h || "0"),
+          totalVolume: parseFloat(coin.totalVolume || "0"),
           createdAt: coin.createdAt,
           creatorHandle: coin.creatorProfile?.handle || coin.creatorAddress,
           price: parseFloat(coin.tokenPrice?.priceInUsdc || "0"),
           marketCapDelta24h: parseFloat(coin.marketCapDelta24h || "0"),
+          uniqueHolders: coin.uniqueHolders || 0,
           profileImage: coin.creatorProfile?.avatar?.previewImage?.medium,
           displayName: coin.creatorProfile?.displayName
         };
@@ -107,7 +113,7 @@ export async function fetchTopGainers(): Promise<CreatorCoin[]> {
         const bChange = b.marketCapDelta24h / b.marketCap;
         return bChange - aChange; // Suurimmat gainers ensin
       })
-      .slice(0, 100); // Top 100 gainers
+      .slice(0, 200); // Top 200 gainers
     
     console.log(`Found ${topGainers.length} top gainers out of ${creatorCoins.length} creator coins`);
     return topGainers;

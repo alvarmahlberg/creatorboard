@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ThemeToggle } from "@/components/theme-toggle";
+// import { ThemeToggle } from "@/components/theme-toggle";
 import { TrendingUp, TrendingDown, Activity, Coins, User, TrendingUpIcon, ChevronUp, ChevronDown } from "lucide-react";
 
 type CreatorCoin = {
@@ -15,10 +15,12 @@ type CreatorCoin = {
   symbol: string;
   marketCap: number;
   volume24h: number;
+  totalVolume: number;
   createdAt: string;
   creatorHandle: string;
   price: number;
   marketCapDelta24h: number;
+  uniqueHolders: number;
   profileImage?: string;
   displayName?: string;
 };
@@ -27,7 +29,7 @@ type TopCreatorsResponse = {
   items: CreatorCoin[];
 };
 
-type SortField = 'marketCap' | 'volume24h' | 'marketCapDelta24h' | 'price' | 'createdAt';
+type SortField = 'marketCap' | 'volume24h' | 'totalVolume' | 'marketCapDelta24h' | 'price' | 'uniqueHolders';
 type SortDirection = 'asc' | 'desc';
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
@@ -39,6 +41,7 @@ export default function Page() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [sortField, setSortField] = useState<SortField>('marketCap');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+
 
   const { data: creatorsData, error: creatorsError, mutate: creatorsMutate, isLoading: creatorsLoading } = useSWR<TopCreatorsResponse>(
     activeTab === 'creators' ? '/api/top-creators' : null,
@@ -84,6 +87,10 @@ export default function Page() {
           aValue = a.volume24h;
           bValue = b.volume24h;
           break;
+        case 'totalVolume':
+          aValue = a.totalVolume;
+          bValue = b.totalVolume;
+          break;
         case 'marketCapDelta24h':
           aValue = a.marketCapDelta24h / a.marketCap;
           bValue = b.marketCapDelta24h / b.marketCap;
@@ -96,6 +103,10 @@ export default function Page() {
           aValue = new Date(a.createdAt).getTime();
           bValue = new Date(b.createdAt).getTime();
           break;
+        case 'uniqueHolders':
+          aValue = a.uniqueHolders;
+          bValue = b.uniqueHolders;
+          break;
         default:
           return 0;
       }
@@ -107,6 +118,8 @@ export default function Page() {
       }
     });
   }, [currentData, sortField, sortDirection]);
+
+
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -173,12 +186,12 @@ export default function Page() {
               <span className="text-muted-foreground hidden sm:inline">
                 Last updated: {lastUpdated ? lastUpdated.toLocaleTimeString() : '...'}
               </span>
-              <ThemeToggle />
+              {/* <ThemeToggle /> */}
             </div>
           </div>
           
-          {/* Välilehdet - mobiilioptimoidut */}
-          <div className="flex space-x-1 mt-4 px-0 sm:px-0">
+          {/* Välilehdet - mobiilioptimoidut (piilotettu toistaiseksi) */}
+          {/* <div className="flex space-x-1 mt-4 px-0 sm:px-0">
             <button
               onClick={() => {
                 setActiveTab('creators');
@@ -209,11 +222,11 @@ export default function Page() {
               <span className="hidden sm:inline">Top Gainers</span>
               <span className="sm:hidden">Gainers</span>
             </button>
-          </div>
+          </div> */}
         </CardHeader>
         <CardContent className="p-2 sm:p-6">
           <div className="rounded-md border overflow-x-auto">
-            <Table className="min-w-[800px] sm:min-w-full">
+            <Table className="min-w-[1000px] sm:min-w-full">
               <TableHeader>
                 <TableRow>
                   <TableHead className="text-xs sm:text-sm">Rank</TableHead>
@@ -230,6 +243,25 @@ export default function Page() {
                   </TableHead>
                   <TableHead 
                     className="cursor-pointer hover:bg-muted/50 active:bg-muted/70 transition-colors text-xs sm:text-sm"
+                    onClick={() => handleSort('price')}
+                  >
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      Price
+                      {getSortIcon('price')}
+                    </div>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-muted/50 active:bg-muted/70 transition-colors text-xs sm:text-sm"
+                    onClick={() => handleSort('marketCapDelta24h')}
+                  >
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      <span className="hidden sm:inline">24H Change</span>
+                      <span className="sm:hidden">24H</span>
+                      {getSortIcon('marketCapDelta24h')}
+                    </div>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-muted/50 active:bg-muted/70 transition-colors text-xs sm:text-sm"
                     onClick={() => handleSort('volume24h')}
                   >
                     <div className="flex items-center gap-1 sm:gap-2">
@@ -240,30 +272,22 @@ export default function Page() {
                   </TableHead>
                   <TableHead 
                     className="cursor-pointer hover:bg-muted/50 active:bg-muted/70 transition-colors text-xs sm:text-sm"
-                    onClick={() => handleSort('marketCapDelta24h')}
+                    onClick={() => handleSort('totalVolume')}
                   >
                     <div className="flex items-center gap-1 sm:gap-2">
-                      <span className="hidden sm:inline">24h Change</span>
-                      <span className="sm:hidden">24h</span>
-                      {getSortIcon('marketCapDelta24h')}
+                      <span className="hidden sm:inline">Total Volume</span>
+                      <span className="sm:hidden">Tot Vol</span>
+                      {getSortIcon('totalVolume')}
                     </div>
                   </TableHead>
                   <TableHead 
                     className="cursor-pointer hover:bg-muted/50 active:bg-muted/70 transition-colors text-xs sm:text-sm"
-                    onClick={() => handleSort('price')}
+                    onClick={() => handleSort('uniqueHolders')}
                   >
                     <div className="flex items-center gap-1 sm:gap-2">
-                      Price
-                      {getSortIcon('price')}
-                    </div>
-                  </TableHead>
-                  <TableHead 
-                    className="cursor-pointer hover:bg-muted/50 active:bg-muted/70 transition-colors text-xs sm:text-sm"
-                    onClick={() => handleSort('createdAt')}
-                  >
-                    <div className="flex items-center gap-1 sm:gap-2">
-                      Age
-                      {getSortIcon('createdAt')}
+                      <span className="hidden sm:inline">Holders</span>
+                      <span className="sm:hidden">Hold</span>
+                      {getSortIcon('uniqueHolders')}
                     </div>
                   </TableHead>
                 </TableRow>
@@ -271,7 +295,7 @@ export default function Page() {
               <TableBody>
                 {sortedData.map((coin, index) => (
                   <TableRow key={coin.address} className="hover:bg-muted/50 active:bg-muted/70 transition-colors">
-                    <TableCell className="font-medium text-xs sm:text-sm">#{index + 1}</TableCell>
+                                          <TableCell className="font-medium text-xs sm:text-sm">#{index + 1}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2 sm:gap-3">
                         <Avatar className="h-6 w-6 sm:h-8 sm:w-8">
@@ -287,7 +311,7 @@ export default function Page() {
                       </div>
                     </TableCell>
                     <TableCell className="font-medium text-xs sm:text-sm">${formatCurrency(coin.marketCap)}</TableCell>
-                    <TableCell className="text-xs sm:text-sm">${formatCurrency(coin.volume24h)}</TableCell>
+                    <TableCell className="font-mono text-xs sm:text-sm">${formatPrice(coin.price)}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
                         {coin.marketCapDelta24h >= 0 ? (
@@ -302,8 +326,9 @@ export default function Page() {
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell className="font-mono text-xs sm:text-sm">${formatPrice(coin.price)}</TableCell>
-                    <TableCell className="text-muted-foreground text-xs sm:text-sm">{formatDaysAgo(coin.createdAt)}</TableCell>
+                    <TableCell className="text-xs sm:text-sm">${formatCurrency(coin.volume24h)}</TableCell>
+                    <TableCell className="text-xs sm:text-sm">${formatCurrency(coin.totalVolume)}</TableCell>
+                    <TableCell className="text-xs sm:text-sm">{formatNumber(coin.uniqueHolders)}</TableCell>
                   </TableRow>
                 ))}
                 {currentLoading && (
@@ -320,10 +345,11 @@ export default function Page() {
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell><Skeleton className="h-3 w-12 sm:h-4 sm:w-16" /></TableCell>
-                        <TableCell><Skeleton className="h-3 w-12 sm:h-4 sm:w-16" /></TableCell>
-                        <TableCell><Skeleton className="h-3 w-16 sm:h-4 sm:w-20" /></TableCell>
                         <TableCell><Skeleton className="h-3 w-8 sm:h-4 sm:w-12" /></TableCell>
+                        <TableCell><Skeleton className="h-3 w-16 sm:h-4 sm:w-20" /></TableCell>
+                        <TableCell><Skeleton className="h-3 w-12 sm:h-4 sm:w-16" /></TableCell>
+                        <TableCell><Skeleton className="h-3 w-8 sm:h-4 sm:w-12" /></TableCell>
+                        <TableCell><Skeleton className="h-3 w-12 sm:h-4 sm:w-16" /></TableCell>
                         <TableCell><Skeleton className="h-3 w-12 sm:h-4 sm:w-16" /></TableCell>
                       </TableRow>
                     ))}
@@ -331,7 +357,7 @@ export default function Page() {
                 )}
                 {!currentLoading && !sortedData.length && (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                       No creator coins found
                     </TableCell>
                   </TableRow>
@@ -339,6 +365,8 @@ export default function Page() {
               </TableBody>
             </Table>
           </div>
+          
+
         </CardContent>
       </Card>
     </main>
@@ -369,6 +397,15 @@ function formatPrice(price: number): string {
     return price.toFixed(4);
   }
   return price.toFixed(2);
+}
+
+function formatNumber(num: number): string {
+  if (num >= 1e6) {
+    return (num / 1e6).toFixed(1) + 'M';
+  } else if (num >= 1e3) {
+    return (num / 1e3).toFixed(1) + 'K';
+  }
+  return num.toString();
 }
 
 function formatDaysAgo(createdAt: string): string {
