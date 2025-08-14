@@ -58,7 +58,13 @@ export default function Page() {
       revalidateOnMount: true,
       revalidateOnReconnect: true,
       errorRetryCount: 3,
-      errorRetryInterval: 5000
+      errorRetryInterval: 5000,
+      onSuccess: (data) => {
+        console.log('Creators data updated at:', new Date().toISOString(), 'Items:', data?.items?.length);
+      },
+      onError: (error) => {
+        console.error('Creators data error:', error);
+      }
     }
   );
 
@@ -71,7 +77,13 @@ export default function Page() {
       revalidateOnMount: true,
       revalidateOnReconnect: true,
       errorRetryCount: 3,
-      errorRetryInterval: 5000
+      errorRetryInterval: 5000,
+      onSuccess: (data) => {
+        console.log('Gainers data updated at:', new Date().toISOString(), 'Items:', data?.items?.length);
+      },
+      onError: (error) => {
+        console.error('Gainers data error:', error);
+      }
     }
   );
 
