@@ -35,10 +35,14 @@ type SortDirection = 'asc' | 'desc';
 const fetcher = (url: string) => fetch(url, {
   cache: 'no-store',
   headers: {
-    'Cache-Control': 'no-cache',
-    'Pragma': 'no-cache'
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
   }
-}).then(r => r.json());
+}).then(r => {
+  console.log('Fetching:', url, 'Status:', r.status);
+  return r.json();
+});
 
 type TabType = 'creators' | 'gainers';
 
