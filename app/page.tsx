@@ -32,7 +32,13 @@ type TopCreatorsResponse = {
 type SortField = 'marketCap' | 'volume24h' | 'totalVolume' | 'marketCapDelta24h' | 'price' | 'uniqueHolders';
 type SortDirection = 'asc' | 'desc';
 
-const fetcher = (url: string) => fetch(url).then(r => r.json());
+const fetcher = (url: string) => fetch(url, {
+  cache: 'no-store',
+  headers: {
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache'
+  }
+}).then(r => r.json());
 
 type TabType = 'creators' | 'gainers';
 
@@ -47,10 +53,12 @@ export default function Page() {
     activeTab === 'creators' ? '/api/top-creators' : null,
     fetcher,
     { 
-      refreshInterval: 60000,
+      refreshInterval: 30000, // Päivitä 30 sekunnin välein
       revalidateOnFocus: true,
       revalidateOnMount: true,
-      dedupingInterval: 0
+      revalidateOnReconnect: true,
+      errorRetryCount: 3,
+      errorRetryInterval: 5000
     }
   );
 
@@ -58,10 +66,12 @@ export default function Page() {
     activeTab === 'gainers' ? '/api/top-gainers' : null,
     fetcher,
     { 
-      refreshInterval: 60000,
+      refreshInterval: 30000, // Päivitä 30 sekunnin välein
       revalidateOnFocus: true,
       revalidateOnMount: true,
-      dedupingInterval: 0
+      revalidateOnReconnect: true,
+      errorRetryCount: 3,
+      errorRetryInterval: 5000
     }
   );
 
@@ -180,6 +190,16 @@ export default function Page() {
                 <Activity className="h-3 w-3" />
                 <span className="hidden sm:inline">LIVE</span>
               </Badge>
+              <button
+                onClick={() => {
+                  currentMutate();
+                  setLastUpdated(new Date());
+                }}
+                className="p-1 hover:bg-muted rounded transition-colors"
+                title="Päivitä data"
+              >
+                <Activity className="h-3 w-3" />
+              </button>
               <span className="text-muted-foreground hidden sm:inline">
                 Last updated: {lastUpdated ? lastUpdated.toLocaleTimeString() : '...'}
               </span>

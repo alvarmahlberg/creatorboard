@@ -1,6 +1,11 @@
 import { setApiKey, getMostValuableCreatorCoins, getCreatorCoins, getProfile } from "@zoralabs/coins-sdk";
 
-if (process.env.ZORA_API_KEY) setApiKey(process.env.ZORA_API_KEY);
+if (process.env.ZORA_API_KEY) {
+  setApiKey(process.env.ZORA_API_KEY);
+  console.log('ZORA_API_KEY set successfully');
+} else {
+  console.log('ZORA_API_KEY not found - using public endpoints');
+}
 
 export type CreatorCoin = {
   address: string;
@@ -20,10 +25,13 @@ export type CreatorCoin = {
 
 export async function fetchTopCreators(): Promise<CreatorCoin[]> {
   try {
+    console.log('Fetching top creators at:', new Date().toISOString());
+    
     // Hae kaikki creator coinit markkina-arvon mukaan
     const result = await getMostValuableCreatorCoins({ count: 200 });
     
     const edges = result?.data?.exploreList?.edges || [];
+    console.log('Raw data received:', edges.length, 'items');
     
     // Muotoile data ja varmista että vain creator coineja näytetään
     const creatorCoins = edges
