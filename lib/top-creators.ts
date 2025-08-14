@@ -2,9 +2,6 @@ import { setApiKey, getMostValuableCreatorCoins, getCreatorCoins, getProfile } f
 
 if (process.env.ZORA_API_KEY) {
   setApiKey(process.env.ZORA_API_KEY);
-  console.log('ZORA_API_KEY set successfully');
-} else {
-  console.log('ZORA_API_KEY not found - using public endpoints');
 }
 
 export type CreatorCoin = {
@@ -25,13 +22,10 @@ export type CreatorCoin = {
 
 export async function fetchTopCreators(): Promise<CreatorCoin[]> {
   try {
-    console.log('Fetching top creators at:', new Date().toISOString());
-    
     // Hae kaikki creator coinit markkina-arvon mukaan
     const result = await getMostValuableCreatorCoins({ count: 200 });
     
     const edges = result?.data?.exploreList?.edges || [];
-    console.log('Raw data received:', edges.length, 'items');
     
     // Muotoile data ja varmista että vain creator coineja näytetään
     const creatorCoins = edges
@@ -67,7 +61,6 @@ export async function fetchTopCreators(): Promise<CreatorCoin[]> {
       .filter((coin) => coin !== null)
       .slice(0, 200) as CreatorCoin[]; // Top 200
     
-    console.log(`Found ${creatorCoins.length} valid creator coins out of ${edges.length} total items`);
     return creatorCoins;
   } catch (e: any) {
     console.error("Failed to fetch top creators:", e);
@@ -123,7 +116,6 @@ export async function fetchTopGainers(): Promise<CreatorCoin[]> {
       })
       .slice(0, 200); // Top 200 gainers
     
-    console.log(`Found ${topGainers.length} top gainers out of ${creatorCoins.length} creator coins`);
     return topGainers;
   } catch (e: any) {
     console.error("Failed to fetch top gainers:", e);
