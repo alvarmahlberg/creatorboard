@@ -301,7 +301,7 @@ export default function Page() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Coins className="h-5 w-5" />
-                Top Creator Coins ({sortedData.length} coinit)
+                Top 100 Creator Coins
               </CardTitle>
             </CardHeader>
             <CardContent>
