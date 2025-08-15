@@ -10,6 +10,8 @@ Live market data dashboard for Zora ecosystem creator coins. Shows real-time mar
 - **Mobile Optimized** - Responsive design for all devices
 - **Dark Mode** - Default dark theme with toggle
 - **Creator Profiles** - Avatars, handles, and display names
+- **Precise Numerics** - Decimal.js for accurate financial calculations
+- **FX-Free USD Data** - Direct Zora USD values without double conversion
 
 ## Tech Stack
 
@@ -19,6 +21,7 @@ Live market data dashboard for Zora ecosystem creator coins. Shows real-time mar
 - **Tailwind CSS** - Styling
 - **Shadcn UI** - Component library
 - **TypeScript** - Type safety
+- **Decimal.js** - Precise decimal arithmetic
 
 ## Quick Start
 
@@ -48,6 +51,26 @@ ZORA_API_KEY=your_zora_api_key_here
 - `/api/top-gainers` - Top 100 creator coins by 24h change
 - `/api/creator/coin?identifier=...` - Single creator coin data
 - `/api/creator/coins/batch?identifiers=a,b,c` - Batch creator coins data
+
+## Recent Fixes
+
+### FX Conversion Fix (v0.4.0)
+- **Removed double FX conversion** on already-USD Zora fields
+- **Added chain: 8453 parameter** to all Zora API calls
+- **Implemented Decimal.js** for precise financial calculations
+- **Added instrumentation** for debugging data flow
+- **Added validation tests** to ensure data accuracy
+
+### Data Flow
+1. **raw_zora** - Raw string values from Zora API
+2. **after_parse** - String to Decimal conversion
+3. **after_fx** - No FX applied (Zora data is already USD)
+4. **final_out** - Final numeric values
+
+### Validation
+- Price validation: `|our.price - derivedPrice| / max(...) < 0.005`
+- Market cap validation: `|our.marketCap - zora.marketCap| / max(...) < 0.005`
+- Volume validation: `|our.volume24h - zora.volume24h| / max(...) < 0.01`
 
 ## Deployment
 

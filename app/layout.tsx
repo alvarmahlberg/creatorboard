@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
-  title: "Top 10 Creator Coins - Live Market Data",
-  description: "Real-time top 10 creator coins by market cap with live updates.",
+  title: "CreatorBoard | Creator Coins Live Market Data",
+  description: "Real-time top 100 creator coins by market cap with live updates.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

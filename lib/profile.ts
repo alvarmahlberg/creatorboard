@@ -1,11 +1,15 @@
 import { setApiKey, getProfile, getCoinSwaps } from "@zoralabs/coins-sdk";
+import Decimal from "decimal.js";
 
 if (process.env.ZORA_API_KEY) setApiKey(process.env.ZORA_API_KEY);
 
 export type Identifier = string; // wallet 0x... or @handle
 
 export async function fetchCreatorCoin(identifier: Identifier) {
-  const res = await getProfile({ identifier });
+  const res = await getProfile({ 
+    identifier,
+    chain: 8453 // Eksplisiittisesti Base chain
+  });
   const profile: any = res?.data?.profile;
   const creatorCoin = profile?.creatorCoin || null;
   
@@ -36,7 +40,8 @@ export async function fetchRecentActivity(coinAddress?: string) {
   try {
     const res = await getCoinSwaps({ 
       address: coinAddress,
-      first: 50 // Haetaan 50 viimeisintä swapia
+      first: 50, // Haetaan 50 viimeisintä swapia
+      chain: 8453 // Eksplisiittisesti Base chain
     });
     
     const swapActivities = res?.data?.zora20Token?.swapActivities?.edges || [];
@@ -48,9 +53,9 @@ export async function fetchRecentActivity(coinAddress?: string) {
         token: swap.senderProfile?.handle || "Unknown",
         action: swap.activityType,
         volume: swap.currencyAmountWithPrice?.currencyAmount?.amountDecimal || 0,
-        amount: parseFloat(swap.coinAmount) / Math.pow(10, 18), // Muunna wei:sta ETH:ksi
+        amount: new Decimal(swap.coinAmount).div(new Decimal(10).pow(18)).toNumber(), // Muunna wei:sta ETH:ksi käyttäen Decimal.js:ää
         transaction: swap.transactionHash || "",
-        price: swap.currencyAmountWithPrice?.priceUsdc || 0
+        price: swap.currencyAmountWithPrice?.priceUsdc || 0 // Zoran priceUsdc on jo USD
       };
     });
   } catch (e: any) {
