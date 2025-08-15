@@ -70,10 +70,9 @@ export function validateZoraData(ourData: CreatorCoin, zoraRawData: any): boolea
 
 export async function fetchTopCreators(): Promise<CreatorCoin[]> {
   try {
-    // Hae kaikki creator coinit markkina-arvon mukaan - LISÄTÄÄN chain: 8453
+    // Hae kaikki creator coinit markkina-arvon mukaan
     const result = await getMostValuableCreatorCoins({ 
-      count: 200,
-      chain: 8453 // Eksplisiittisesti Base chain
+      count: 200
     });
     
     const edges = result?.data?.exploreList?.edges || [];
@@ -165,10 +164,9 @@ export async function fetchTopCreators(): Promise<CreatorCoin[]> {
 
 export async function fetchTopGainers(): Promise<CreatorCoin[]> {
   try {
-    // Hae kaikki creator coinit - LISÄTÄÄN chain: 8453
+    // Hae kaikki creator coinit
     const result = await getMostValuableCreatorCoins({ 
-      count: 200,
-      chain: 8453 // Eksplisiittisesti Base chain
+      count: 200
     });
     
     const edges = result?.data?.exploreList?.edges || [];

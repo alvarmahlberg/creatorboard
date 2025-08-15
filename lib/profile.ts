@@ -7,8 +7,7 @@ export type Identifier = string; // wallet 0x... or @handle
 
 export async function fetchCreatorCoin(identifier: Identifier) {
   const res = await getProfile({ 
-    identifier,
-    chain: 8453 // Eksplisiittisesti Base chain
+    identifier
   });
   const profile: any = res?.data?.profile;
   const creatorCoin = profile?.creatorCoin || null;
