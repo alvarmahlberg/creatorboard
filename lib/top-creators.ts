@@ -1,6 +1,33 @@
 import { setApiKey, getMostValuableCreatorCoins, getCreatorCoins, getProfile } from "@zoralabs/coins-sdk";
 import Decimal from "decimal.js";
 
+// Helper functions for debug logging
+function formatCurrency(amount: number): string {
+  if (amount >= 1e9) {
+    return (amount / 1e9).toFixed(1) + 'B';
+  } else if (amount >= 1e6) {
+    return (amount / 1e6).toFixed(1) + 'M';
+  } else if (amount >= 1e3) {
+    return (amount / 1e3).toFixed(1) + 'K';
+  }
+  return amount.toFixed(1);
+}
+
+function formatPrice(price: number): string {
+  if (price < 0.01) {
+    return price.toFixed(4);
+  } else if (price < 1) {
+    return price.toFixed(4);
+  }
+  return price.toFixed(4);
+}
+
+function formatPercentage(change: number, marketCap: number): string {
+  if (marketCap === 0) return '0.0%';
+  const percentage = (change / marketCap) * 100;
+  return percentage.toFixed(1) + '%';
+}
+
 if (process.env.ZORA_API_KEY) {
   setApiKey(process.env.ZORA_API_KEY);
 }
@@ -70,10 +97,14 @@ export function validateZoraData(ourData: CreatorCoin, zoraRawData: any): boolea
 
 export async function fetchTopCreators(): Promise<CreatorCoin[]> {
   try {
+    console.log(`[${new Date().toISOString()}] Fetching top creators from Zora API...`);
+    
     // Hae kaikki creator coinit markkina-arvon mukaan
     const result = await getMostValuableCreatorCoins({ 
       count: 200
     });
+    
+    console.log(`[${new Date().toISOString()}] Zora API response received, processing data...`);
     
     const edges = result?.data?.exploreList?.edges || [];
     
@@ -154,6 +185,20 @@ export async function fetchTopCreators(): Promise<CreatorCoin[]> {
       .filter((coin) => coin !== null)
       .sort((a, b) => b.marketCap - a.marketCap) // Lajittele markkina-arvon mukaan (suurimmat ensin)
       .slice(0, 100) as CreatorCoin[]; // Top 100
+    
+    // Debug: Lokita top 3 market cap -kolikot
+    console.log("=== TOP 3 MARKET CAP DEBUG ===");
+    creatorCoins.slice(0, 3).forEach((coin, index) => {
+      console.log(`#${index + 1}: ${coin.name} (${coin.symbol})`);
+      console.log(`  Market Cap: $${formatCurrency(coin.marketCap)}`);
+      console.log(`  Price: $${formatPrice(coin.price)}`);
+      console.log(`  24h Change: ${formatPercentage(coin.marketCapDelta24h, coin.marketCap)}`);
+      console.log(`  24h Volume: $${formatCurrency(coin.volume24h)}`);
+      console.log(`  Holders: ${coin.uniqueHolders}`);
+      console.log(`  Address: ${coin.address}`);
+      console.log("---");
+    });
+    console.log("=== END DEBUG ===");
     
     return creatorCoins;
   } catch (e: any) {
