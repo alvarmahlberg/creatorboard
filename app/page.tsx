@@ -47,13 +47,15 @@ export default function Page() {
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
   const { data: creatorsData, error: creatorsError, mutate: creatorsMutate, isLoading: creatorsLoading } = useSWR<TopCreatorsResponse>(
-    '/api/top-creators',
+    `/api/top-creators?t=${Date.now()}`, // Lisää timestamp cache-busting:iä varten
     fetcher,
     { 
-      refreshInterval: 30000, // Päivitä 30 sekunnin välein
+      refreshInterval: 10000, // Päivitä 10 sekunnin välein
       revalidateOnFocus: true,
       revalidateOnMount: true,
       revalidateOnReconnect: true,
+      revalidateIfStale: true,
+      dedupingInterval: 0, // Ei deduplikointia
       errorRetryCount: 3,
       errorRetryInterval: 5000
     }
