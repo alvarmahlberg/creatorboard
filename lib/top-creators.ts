@@ -97,14 +97,14 @@ export function validateZoraData(ourData: CreatorCoin, zoraRawData: any): boolea
 
 export async function fetchTopCreators(): Promise<CreatorCoin[]> {
   try {
-    console.log(`[${new Date().toISOString()}] Fetching top creators from Zora API...`);
-    
     // Hae kaikki creator coinit markkina-arvon mukaan
     const result = await getMostValuableCreatorCoins({ 
-      count: 200
+      count: 200,
+      // Lisää cache-busting parametri
+      ...(process.env.NODE_ENV === 'development' && { 
+        _timestamp: Date.now()
+      })
     });
-    
-    console.log(`[${new Date().toISOString()}] Zora API response received, processing data...`);
     
     const edges = result?.data?.exploreList?.edges || [];
     
@@ -185,20 +185,6 @@ export async function fetchTopCreators(): Promise<CreatorCoin[]> {
       .filter((coin) => coin !== null)
       .sort((a, b) => b.marketCap - a.marketCap) // Lajittele markkina-arvon mukaan (suurimmat ensin)
       .slice(0, 100) as CreatorCoin[]; // Top 100
-    
-    // Debug: Lokita top 3 market cap -kolikot
-    console.log("=== TOP 3 MARKET CAP DEBUG ===");
-    creatorCoins.slice(0, 3).forEach((coin, index) => {
-      console.log(`#${index + 1}: ${coin.name} (${coin.symbol})`);
-      console.log(`  Market Cap: $${formatCurrency(coin.marketCap)}`);
-      console.log(`  Price: $${formatPrice(coin.price)}`);
-      console.log(`  24h Change: ${formatPercentage(coin.marketCapDelta24h, coin.marketCap)}`);
-      console.log(`  24h Volume: $${formatCurrency(coin.volume24h)}`);
-      console.log(`  Holders: ${coin.uniqueHolders}`);
-      console.log(`  Address: ${coin.address}`);
-      console.log("---");
-    });
-    console.log("=== END DEBUG ===");
     
     return creatorCoins;
   } catch (e: any) {

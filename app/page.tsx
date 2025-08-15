@@ -61,12 +61,13 @@ export default function Page() {
     }
   );
 
-  // Debug: Lokita mitä dataa SWR saa
-  console.log('SWR Data:', creatorsData);
+
   
   // Lajittele data dynaamisesti
   const sortedData = useMemo(() => {
-    if (!creatorsData?.items) return [];
+    if (!creatorsData?.items) {
+      return [];
+    }
     
     return [...creatorsData.items].sort((a, b) => {
       let aValue: number;
@@ -139,6 +140,8 @@ export default function Page() {
     }, 60000);
     return () => clearInterval(interval);
   }, []);
+
+
 
   if (creatorsError) {
     return (
