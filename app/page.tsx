@@ -47,7 +47,7 @@ export default function Page() {
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
   const { data: creatorsData, error: creatorsError, mutate: creatorsMutate, isLoading: creatorsLoading } = useSWR<TopCreatorsResponse>(
-    `/api/top-creators?t=${Date.now()}`, // Lisää timestamp cache-busting:iä varten
+    '/api/top-creators',
     fetcher,
     { 
       refreshInterval: 10000, // Päivitä 10 sekunnin välein
@@ -61,6 +61,9 @@ export default function Page() {
     }
   );
 
+  // Debug: Lokita mitä dataa SWR saa
+  console.log('SWR Data:', creatorsData);
+  
   // Lajittele data dynaamisesti
   const sortedData = useMemo(() => {
     if (!creatorsData?.items) return [];
