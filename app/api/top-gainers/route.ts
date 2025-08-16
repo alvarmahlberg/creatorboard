@@ -3,13 +3,15 @@ import { fetchTopGainers } from "@/lib/top-creators";
 
 export async function GET() {
   try {
+    // Lisää cache-busting header
     const data = await fetchTopGainers();
     return NextResponse.json({ items: data }, { 
       status: 200,
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
-        'Expires': '0'
+        'Expires': '0',
+        'X-Cache-Bust': Date.now().toString()
       }
     });
   } catch (e: any) {

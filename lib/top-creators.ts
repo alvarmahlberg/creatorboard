@@ -99,9 +99,7 @@ export async function fetchTopCreators(): Promise<CreatorCoin[]> {
   try {
     // Hae kaikki creator coinit markkina-arvon mukaan
     const result = await getMostValuableCreatorCoins({ 
-      count: 200,
-      // Lisää cache-busting parametri kaikissa ympäristöissä
-      _timestamp: Date.now()
+      count: 200
     });
     
     const edges = result?.data?.exploreList?.edges || [];
@@ -195,9 +193,7 @@ export async function fetchTopGainers(): Promise<CreatorCoin[]> {
   try {
     // Hae kaikki creator coinit
     const result = await getMostValuableCreatorCoins({ 
-      count: 200,
-      // Lisää cache-busting parametri kaikissa ympäristöissä
-      _timestamp: Date.now()
+      count: 200
     });
     
     const edges = result?.data?.exploreList?.edges || [];
