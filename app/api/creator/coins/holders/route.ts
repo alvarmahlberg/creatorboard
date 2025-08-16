@@ -1,19 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchRecentActivity } from "@/lib/profile";
+import { fetchCoinHolders } from "@/lib/profile";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const address = searchParams.get("address");
-  
-  console.log("=== API: /api/creator/coins/activity called with address:", address);
   
   if (!address) {
     return NextResponse.json({ error: "address is required" }, { status: 400 });
   }
   
   try {
-    const data = await fetchRecentActivity(address);
-    console.log("=== API: Returning", data.length, "activities");
+    const data = await fetchCoinHolders(address);
     return NextResponse.json({ items: data }, { status: 200 });
   } catch (e: any) {
     console.error(e);

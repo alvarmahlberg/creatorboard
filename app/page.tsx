@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 // import { ThemeToggle } from "@/components/theme-toggle";
 import { TrendingUp, TrendingDown, Activity, Coins, User, ChevronUp, ChevronDown, BarChart3, Users, DollarSign, Target } from "lucide-react";
+import Link from "next/link";
 
 type CreatorCoin = {
   address: string;
@@ -240,22 +241,24 @@ export default function Page() {
                 .sort((a, b) => (b.marketCapDelta24h / b.marketCap) - (a.marketCapDelta24h / a.marketCap))
                 .slice(0, 3)
                 .map((coin, index) => (
-                  <div key={coin.address} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-4 w-4">
-                        <AvatarImage src={coin.profileImage} alt={coin.name} />
-                        <AvatarFallback className="text-xs">
-                          <User className="h-2 w-2" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-xs font-medium truncate max-w-16">
-                        {coin.symbol || coin.name.slice(0, 8)}
+                  <Link key={coin.address} href={`/coin/${coin.address}`} className="block hover:bg-muted/50 rounded p-1 -m-1 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-4 w-4">
+                          <AvatarImage src={coin.profileImage} alt={coin.name} />
+                          <AvatarFallback className="text-xs">
+                            <User className="h-2 w-2" />
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-xs font-medium truncate max-w-16">
+                          {coin.symbol || coin.name.slice(0, 8)}
+                        </span>
+                      </div>
+                      <span className="text-xs font-bold text-green-600">
+                        +{formatPercentage(coin.marketCapDelta24h, coin.marketCap)}
                       </span>
                     </div>
-                    <span className="text-xs font-bold text-green-600">
-                      +{formatPercentage(coin.marketCapDelta24h, coin.marketCap)}
-                    </span>
-                  </div>
+                  </Link>
                 ))}
               {sortedData.filter(coin => coin.marketCapDelta24h > 0).length === 0 && (
                 <p className="text-xs text-muted-foreground">Ei nousussa olevia kolikkoja</p>
@@ -276,22 +279,24 @@ export default function Page() {
                 .sort((a, b) => (a.marketCapDelta24h / a.marketCap) - (b.marketCapDelta24h / b.marketCap))
                 .slice(0, 3)
                 .map((coin, index) => (
-                  <div key={coin.address} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-4 w-4">
-                        <AvatarImage src={coin.profileImage} alt={coin.name} />
-                        <AvatarFallback className="text-xs">
-                          <User className="h-2 w-2" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-xs font-medium truncate max-w-16">
-                        {coin.symbol || coin.name.slice(0, 8)}
+                  <Link key={coin.address} href={`/coin/${coin.address}`} className="block hover:bg-muted/50 rounded p-1 -m-1 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-4 w-4">
+                          <AvatarImage src={coin.profileImage} alt={coin.name} />
+                          <AvatarFallback className="text-xs">
+                            <User className="h-2 w-2" />
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-xs font-medium truncate max-w-16">
+                          {coin.symbol || coin.name.slice(0, 8)}
+                        </span>
+                      </div>
+                      <span className="text-xs font-bold text-red-600">
+                        {formatPercentage(coin.marketCapDelta24h, coin.marketCap)}
                       </span>
                     </div>
-                    <span className="text-xs font-bold text-red-600">
-                      {formatPercentage(coin.marketCapDelta24h, coin.marketCap)}
-                    </span>
-                  </div>
+                  </Link>
                 ))}
               {sortedData.filter(coin => coin.marketCapDelta24h < 0).length === 0 && (
                 <p className="text-xs text-muted-foreground">Ei laskussa olevia kolikkoja</p>
@@ -375,18 +380,20 @@ export default function Page() {
                       <TableRow key={coin.address} className="hover:bg-muted/50 active:bg-muted/70 transition-colors">
                         <TableCell className="font-medium text-xs sm:text-sm">#{index + 1}</TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2 sm:gap-3">
-                            <Avatar className="h-6 w-6 sm:h-8 sm:w-8">
-                              <AvatarImage src={coin.profileImage} alt={coin.name} />
-                              <AvatarFallback>
-                                <User className="h-3 w-3 sm:h-4 sm:w-4" />
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="min-w-0 flex-1">
-                              <div className="font-medium text-xs sm:text-sm truncate">{coin.displayName || coin.name}</div>
-                              <div className="text-xs text-muted-foreground truncate">@{coin.creatorHandle}</div>
+                          <Link href={`/coin/${coin.address}`} className="block hover:bg-muted/50 rounded-lg p-1 -m-1 transition-colors">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                              <Avatar className="h-6 w-6 sm:h-8 sm:w-8">
+                                <AvatarImage src={coin.profileImage} alt={coin.name} />
+                                <AvatarFallback>
+                                  <User className="h-3 w-3 sm:h-4 sm:w-4" />
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="min-w-0 flex-1">
+                                <div className="font-medium text-xs sm:text-sm truncate">{coin.displayName || coin.name}</div>
+                                <div className="text-xs text-muted-foreground truncate">@{coin.creatorHandle}</div>
+                              </div>
                             </div>
-                          </div>
+                          </Link>
                         </TableCell>
                         <TableCell className="font-medium text-xs sm:text-sm">${formatCurrency(coin.marketCap)}</TableCell>
                         <TableCell className="font-mono text-xs sm:text-sm">${formatPrice(coin.price)}</TableCell>
