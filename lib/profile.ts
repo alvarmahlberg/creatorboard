@@ -1,4 +1,4 @@
-import { setApiKey, getProfile, getCoinSwaps, getCoinHolders } from "@zoralabs/coins-sdk";
+import { setApiKey, getProfile, getCoinHolders } from "@zoralabs/coins-sdk";
 import Decimal from "decimal.js";
 
 if (process.env.ZORA_API_KEY) setApiKey(process.env.ZORA_API_KEY);
@@ -43,8 +43,7 @@ export async function fetchCreatorCoin(identifier: Identifier) {
         price: parseFloat(coin.tokenPrice?.priceInUsdc || "0"),
         marketCapDelta24h: parseFloat(coin.marketCapDelta24h || "0"),
         uniqueHolders: coin.uniqueHolders || 0,
-        profileImage: coin.creatorProfile?.avatar?.previewImage?.medium,
-        displayName: coin.creatorProfile?.displayName
+        profileImage: coin.creatorProfile?.avatar?.previewImage?.medium
       };
     }
     
@@ -68,74 +67,7 @@ export async function fetchCreatorCoinsBatch(identifiers: Identifier[]) {
   return out;
 }
 
-export async function fetchRecentActivity(coinAddress?: string) {
-  console.log("=== fetchRecentActivity called with:", coinAddress);
-  if (!coinAddress) return [];
-  
-  try {
-    const res = await getCoinSwaps({ 
-      address: coinAddress,
-      first: 50, // Haetaan 50 viimeisintä swapia
-      chain: 8453 // Eksplisiittisesti Base chain
-    });
-    
-    console.log("=== getCoinSwaps response:", res?.data?.zora20Token?.swapActivities?.edges?.length || 0, "swaps");
-    
-    const swapActivities = res?.data?.zora20Token?.swapActivities?.edges || [];
-    
-    return swapActivities.map((edge: any) => {
-      const swap = edge.node;
-      const amount = new Decimal(swap.coinAmount).div(new Decimal(10).pow(18)).toNumber();
-      const price = swap.currencyAmountWithPrice?.priceUsdc || 0;
-      const value = amount * price;
-      
-      // Muunna timestamp aikaa sitten
-      let timeAgo = "1h"; // Fallback
-      if (swap.blockTimestamp) {
-        try {
-          // Lohkokejudata on Unix timestamp sekunteina
-          const now = Math.floor(Date.now() / 1000); // Nykyinen aika sekunteina
-          const diffInSeconds = now - swap.blockTimestamp;
-          const diffInMinutes = Math.floor(diffInSeconds / 60);
-          const diffInHours = Math.floor(diffInMinutes / 60);
-          
-          console.log("Time debug:", {
-            blockTimestamp: swap.blockTimestamp,
-            now,
-            diffInSeconds,
-            diffInMinutes,
-            diffInHours
-          });
-          
-          if (diffInSeconds < 0) {
-            timeAgo = "now";
-          } else if (diffInHours > 0) {
-            timeAgo = `${diffInHours}h`;
-          } else if (diffInMinutes > 0) {
-            timeAgo = `${diffInMinutes}m`;
-          } else {
-            timeAgo = "now";
-          }
-        } catch (e) {
-          console.error("Error parsing timestamp:", e);
-          timeAgo = "1h";
-        }
-      }
-      
-      return {
-        time: timeAgo,
-        token: swap.senderProfile?.handle || swap.senderProfile?.address?.slice(0, 6) + '...' + swap.senderProfile?.address?.slice(-4) || "Unknown",
-        action: swap.activityType === "SWAP_IN" ? "Buy" : "Sell",
-        amount: amount,
-        value: value,
-        profileImage: swap.senderProfile?.avatar?.previewImage?.medium
-      };
-    });
-  } catch (e: any) {
-    console.error("Failed to fetch recent activity:", e);
-    return [];
-  }
-}
+
 
 export async function fetchCoinHolders(coinAddress?: string) {
   if (!coinAddress) return [];
